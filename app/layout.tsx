@@ -1,8 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
 import { Inter, Roboto_Mono } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
 import "./globals.css"
 
 const inter = Inter({
@@ -18,8 +18,8 @@ const roboto_mono = Roboto_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Impact Matrix - Humanitarian Aid Coordination",
-  description: "Connect aid requesters, suppliers, and logistics providers for efficient humanitarian response",
+  title: "v0 App",
+  description: "Created with v0",
   generator: "v0.app",
 }
 
@@ -30,12 +30,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${roboto_mono.variable} antialiased`}>
-      <body className="font-sans bg-background">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </body>
+      <head>
+        <style>{`
+html {
+  font-family: ${GeistSans.style.fontFamily};
+  --font-sans: ${GeistSans.variable};
+  --font-mono: ${GeistMono.variable};
+}
+        `}</style>
+      </head>
+      <body className="font-sans bg-gray-50">{children}</body>
     </html>
   )
 }

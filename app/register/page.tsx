@@ -4,82 +4,39 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { Heart, Mail, Lock, Eye, EyeOff, User, Building } from "lucide-react"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { Heart, Mail, Lock, Eye, EyeOff, User, Building, Phone, MapPin, Upload } from "lucide-react"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    role: "",
+    userType: "",
     organizationName: "",
+    organizationCategory: "",
+    location: "",
+    phone: "",
+    crisisFocusAreas: [],
+    additionalInfo: "",
   })
-  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError("")
-
-    try {
-      const supabase = getSupabaseBrowserClient()
-
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
-          data: {
-            full_name: formData.fullName,
-            role: formData.role,
-          },
-        },
-      })
-
-      if (signUpError) throw signUpError
-
-      if (data.user && formData.organizationName) {
-        const { error: orgError } = await supabase.from("orgs").insert({
-          name: formData.organizationName,
-          created_by: data.user.id,
-        })
-
-        if (orgError) console.error("Failed to create organization:", orgError)
-      }
-
-      router.push("/login?registered=true")
-    } catch (err: any) {
-      setError(err.message || "Failed to create account")
-    } finally {
-      setLoading(false)
-    }
+    // TODO: Implement registration logic
+    console.log("Registration attempt:", formData)
   }
 
-  const handleGoogleSignup = async () => {
-    try {
-      const supabase = getSupabaseBrowserClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) throw error
-    } catch (err: any) {
-      setError(err.message || "Failed to sign up with Google")
-    }
+  const handleGoogleSignup = () => {
+    // TODO: Implement Google OAuth
+    console.log("Google signup clicked")
   }
 
   const updateFormData = (field: string, value: string) => {
@@ -89,6 +46,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-3 mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
@@ -107,42 +65,41 @@ export default function RegisterPage() {
             <CardDescription>Create your account to start coordinating humanitarian logistics</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
 
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name *</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="fullName"
-                      placeholder="Enter your full name"
-                      value={formData.fullName}
-                      onChange={(e) => updateFormData("fullName", e.target.value)}
-                      className="pl-10"
-                      required
-                    />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name *</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="fullName"
+                        placeholder="Enter your full name"
+                        value={formData.fullName}
+                        onChange={(e) => updateFormData("fullName", e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={formData.email}
-                      onChange={(e) => updateFormData("email", e.target.value)}
-                      className="pl-10"
-                      required
-                    />
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your email"
+                        value={formData.email}
+                        onChange={(e) => updateFormData("email", e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -153,12 +110,11 @@ export default function RegisterPage() {
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="Create a strong password (min 6 characters)"
+                      placeholder="Create a strong password"
                       value={formData.password}
                       onChange={(e) => updateFormData("password", e.target.value)}
                       className="pl-10 pr-10"
                       required
-                      minLength={6}
                     />
                     <button
                       type="button"
@@ -171,47 +127,134 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="role">Organization Type *</Label>
-                  <Select value={formData.role} onValueChange={(value) => updateFormData("role", value)} required>
+                  <Label htmlFor="userType">User Type *</Label>
+                  <Select value={formData.userType} onValueChange={(value) => updateFormData("userType", value)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your organization type" />
+                      <SelectValue placeholder="Select your primary role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="business">Business</SelectItem>
-                      <SelectItem value="donor">Donor</SelectItem>
-                      <SelectItem value="ngo">NGO</SelectItem>
-                      <SelectItem value="npo">NPO</SelectItem>
-                      <SelectItem value="volunteer">Volunteer</SelectItem>
+                      <SelectItem value="non-profit">Non-Profit Organization</SelectItem>
+                      <SelectItem value="supplier">Service/Product Supplier</SelectItem>
+                      <SelectItem value="volunteer">Individual Volunteer/Expert</SelectItem>
                       <SelectItem value="government">Government Agency</SelectItem>
-                      <SelectItem value="school">School</SelectItem>
-                      <SelectItem value="hospital">Hospital</SelectItem>
-                      <SelectItem value="association">Association</SelectItem>
-                      <SelectItem value="academia">Academia</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Organization Information */}
+              {formData.userType && formData.userType !== "volunteer" && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Organization Information</h3>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="organizationName">Organization Name *</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="organizationName"
+                        placeholder="Enter your organization name"
+                        value={formData.organizationName}
+                        onChange={(e) => updateFormData("organizationName", e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="organizationCategory">Organization Category *</Label>
+                    <Select
+                      value={formData.organizationCategory}
+                      onValueChange={(value) => updateFormData("organizationCategory", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select organization type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="humanitarian-ngo">Humanitarian Aid NGO</SelectItem>
+                        <SelectItem value="disaster-response">Disaster Response Agency</SelectItem>
+                        <SelectItem value="logistics-provider">Logistics Provider</SelectItem>
+                        <SelectItem value="equipment-manufacturer">Equipment Manufacturer</SelectItem>
+                        <SelectItem value="warehouse-operator">Warehouse Operator</SelectItem>
+                        <SelectItem value="expertise-consultant">Expertise Consultant</SelectItem>
+                        <SelectItem value="government">Government</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="verificationDocs">Verification Documents *</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 mb-2">
+                        Upload proof (e.g., 501(c)(3) certificate, business license)
+                      </p>
+                      <p className="text-xs text-gray-500">PDF/JPG, max 5MB</p>
+                      <Button type="button" variant="outline" className="mt-2 bg-transparent">
+                        Choose Files
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location (Postal Code/Country) *</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="location"
+                        placeholder="Primary operating location"
+                        value={formData.location}
+                        onChange={(e) => updateFormData("location", e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Contact phone number"
+                        value={formData.phone}
+                        onChange={(e) => updateFormData("phone", e.target.value)}
+                        className="pl-10"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="organizationName">Organization Name (Optional)</Label>
-                  <div className="relative">
-                    <Building className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="organizationName"
-                      placeholder="Enter your organization name"
-                      value={formData.organizationName}
-                      onChange={(e) => updateFormData("organizationName", e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+                  <Label htmlFor="additionalInfo">Additional Information</Label>
+                  <Textarea
+                    id="additionalInfo"
+                    placeholder="Any other details about your capabilities or focus areas"
+                    value={formData.additionalInfo}
+                    onChange={(e) => updateFormData("additionalInfo", e.target.value)}
+                    rows={3}
+                  />
                 </div>
               </div>
 
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
-                disabled={loading}
               >
-                {loading ? "Creating Account..." : "Create Account"}
+                Create Account
               </Button>
             </form>
 

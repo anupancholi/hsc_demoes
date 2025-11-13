@@ -4,60 +4,27 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Heart, Mail, Lock, Eye, EyeOff } from "lucide-react"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError("")
-
-    try {
-      const supabase = getSupabaseBrowserClient()
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) throw error
-
-      router.push("/dashboard")
-      router.refresh()
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in")
-    } finally {
-      setLoading(false)
-    }
+    // TODO: Implement authentication logic
+    console.log("Login attempt:", { email, password })
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      const supabase = getSupabaseBrowserClient()
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) throw error
-    } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google")
-    }
+  const handleGoogleLogin = () => {
+    // TODO: Implement Google OAuth
+    console.log("Google login clicked")
   }
 
   return (
@@ -82,10 +49,6 @@ export default function LoginPage() {
             <CardDescription>Sign in to your humanitarian logistics account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
@@ -135,9 +98,8 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
-                disabled={loading}
               >
-                {loading ? "Signing in..." : "Sign In"}
+                Sign In
               </Button>
             </form>
 
